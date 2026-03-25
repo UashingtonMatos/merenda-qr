@@ -140,13 +140,13 @@ function mostrarMensagem(res) {
 }
 
 
-if (typeof Html5Qrcode === "undefined") {
-document.getElementById("msg").innerText = "Biblioteca não carregou";
-return;
-}
-
 // iniciar scanner
 function iniciarCamera() {
+
+   if (typeof Html5Qrcode === "undefined") {
+    document.getElementById("msg").innerText = "Biblioteca não carregou";
+    return;
+  }
 
   html5QrCode = new Html5Qrcode("reader");
 
