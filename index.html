@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+body { font-family: Arial; text-align:center; margin:0; }
+
+.tela { display:none; padding:20px; }
+
+input { padding:10px; width:80%; margin:10px; font-size:16px; }
+button { padding:10px 20px; font-size:16px; }
+
+.topo { display:flex; justify-content:space-between; padding:10px; background:#f5f5f5; }
+
+video { width:100%; max-width:300px; margin-top:20px; }
+
+#msg { font-size:20px; margin-top:15px; font-weight:bold; }
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div id="login" class="tela">
+  <h2>🍽️ Controle de Merenda</h2>
+
+  <input type="text" id="email" placeholder="Email"><br>
+  <input type="password" id="senha" placeholder="Senha"><br>
+
+  <button onclick="entrar()">Entrar</button>
+
+  <p id="msgLogin" style="color:red;"></p>
+</div>
+
+<!-- SCANNER -->
+<div id="scanner" class="tela">
+
+  <div class="topo">
+    <b id="escola"></b>
+    <button onclick="sair()">Sair</button>
+  </div>
+
+  <h3>📷 Leitor de QR</h3>
+
+  <video id="video" autoplay playsinline></video>
+
+  <p id="msg"></p>
+
+</div>
+
+<script>
+
+let stream;
+
+// inicia sistema
+window.onload = function() {
+  if (localStorage.getItem("escola")) {
+    mostrarScanner();
+  } else {
+    mostrarLogin();
+  }
+};
+
+// telas
+function mostrarLogin() {
+  document.getElementById("login").style.display = "block";
+  document.getElementById("scanner").style.display = "none";
+}
+
+function mostrarScanner() {
+  document.getElementById("login").style.display = "none";
+  document.getElementById("scanner").style.display = "block";
+
+  document.getElementById("escola").innerText = localStorage.getItem("escola");
+
+  iniciarCamera();
+}
+
+// login fake (ajustaremos depois)
+function entrar() {
+  if (document.getElementById("email").value) {
+    localStorage.setItem("escola", "EMEF Teste");
+    mostrarScanner();
+  } else {
+    document.getElementById("msgLogin").innerText = "Informe o email";
+  }
+}
+
+// sair
+function sair() {
+  localStorage.clear();
+  if (stream) stream.getTracks().forEach(t => t.stop());
+  mostrarLogin();
+}
+
+// câmera
+async function iniciarCamera() {
+
+  const video = document.getElementById("video");
+
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "environment" }
+    });
+
+    video.srcObject = stream;
+
+  } catch (err) {
+    document.getElementById("msg").innerText = "Erro ao acessar câmera";
+  }
+
+}
+
+</script>
+
+</body>
+</html>
