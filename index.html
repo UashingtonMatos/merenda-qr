@@ -3,8 +3,6 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<script src="https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"></script>
-
 <style>
 body { font-family: Arial; margin:0; text-align:center; }
 
@@ -50,7 +48,10 @@ button { padding:10px 20px; font-size:16px; }
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"></script>
 <script>
+  
+console.log("Html5Qrcode:", typeof Html5Qrcode);
 
 const API_URL = "https://script.google.com/macros/s/AKfycbzr5i6rAiVL6ygmmsthqw8n-MY849FTplc0WV3ypmGKUZb1Mli_uo84fy-20txm4ankWA/exec";
 
@@ -132,6 +133,12 @@ function mostrarMensagem(res) {
   } else {
     msg.style.color = "red";
   }
+}
+
+
+if (typeof Html5Qrcode === "undefined") {
+document.getElementById("msg").innerText = "Biblioteca não carregou";
+return;
 }
 
 // iniciar scanner
