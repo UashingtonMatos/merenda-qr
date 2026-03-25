@@ -61,6 +61,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbzr5i6rAiVL6ygmmsthqw8n
 
 let html5QrCode;
 let lendo = false;
+let ultimoCodigo = "";
 
 // inicialização
 window.onload = function() {
@@ -85,7 +86,6 @@ function mostrarScanner() {
 
   document.getElementById("escola").innerText = localStorage.getItem("escola");
 
-  iniciarCamera();
 }
 
 // login via Apps Script
@@ -118,10 +118,6 @@ function entrar() {
 function sair() {
   localStorage.clear();
 
-  if (html5QrCode) {
-    html5QrCode.stop();
-  }
-
   mostrarLogin();
 }
 
@@ -151,46 +147,38 @@ function mostrarMensagem(res) {
 // iniciar scanner
 function iniciarCamera() {
 
-   if (typeof Html5Qrcode === "undefined") {
+  if (typeof Html5Qrcode === "undefined") {
     document.getElementById("msg").innerText = "Biblioteca não carregou";
     return;
   }
 
   html5QrCode = new Html5Qrcode("reader");
 
-  Html5Qrcode.getCameras().then(devices => {
+  html5QrCode.start(
+    { facingMode: "environment" },
+    { fps: 10, qrbox: 250 },
+    (decodedText) => {
 
-    if (devices && devices.length) {
+      if (lendo || decodedText === ultimoCodigo) return;
 
-      html5QrCode.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: 250 },
-        (decodedText) => {
+      lendo = true;
+      ultimoCodigo = decodedText;
 
-          if (lendo) return;
-          lendo = true;
-        
-          html5QrCode.stop();
-        
-          fetch(API_URL + "?matricula=" + decodedText)
-            .then(res => res.json())
-            .then(data => {
-        
-              mostrarMensagem(data);
-        
-              setTimeout(() => {
-                lendo = false;
-                iniciarCamera();
-              }, 1000);
-        
-            });
-        
-        }
-      );
+      fetch(API_URL + "?matricula=" + decodedText)
+        .then(res => res.json())
+        .then(data => {
+
+          mostrarMensagem(data);
+
+          setTimeout(() => {
+            lendo = false;
+            ultimoCodigo = "";
+          }, 800);
+
+        });
 
     }
-
-  }).catch(() => {
+  ).catch(() => {
     document.getElementById("msg").innerText = "Erro ao acessar câmera";
   });
 
