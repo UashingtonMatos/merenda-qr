@@ -60,6 +60,7 @@ console.log("Html5Qrcode:", typeof Html5Qrcode);
 const API_URL = "https://script.google.com/macros/s/AKfycbzr5i6rAiVL6ygmmsthqw8n-MY849FTplc0WV3ypmGKUZb1Mli_uo84fy-20txm4ankWA/exec";
 
 let html5QrCode;
+let lendo = false;
 
 // inicialização
 window.onload = function() {
@@ -129,6 +130,7 @@ function mostrarMensagem(res) {
   let msg = document.getElementById("msg");
 
   msg.innerText = res.msg;
+  msg.style.display = "block";
 
   if (res.status === "ok") {
     msg.style.color = "green";
@@ -137,6 +139,12 @@ function mostrarMensagem(res) {
   } else {
     msg.style.color = "red";
   }
+
+  // 🔥 some depois de 1 segundo
+  setTimeout(() => {
+    msg.innerText = "";
+    msg.style.display = "none";
+  }, 1000);
 }
 
 
@@ -159,20 +167,24 @@ function iniciarCamera() {
         { fps: 10, qrbox: 250 },
         (decodedText) => {
 
+          if (lendo) return;
+          lendo = true;
+        
           html5QrCode.stop();
-
+        
           fetch(API_URL + "?matricula=" + decodedText)
             .then(res => res.json())
             .then(data => {
-
+        
               mostrarMensagem(data);
-
+        
               setTimeout(() => {
+                lendo = false;
                 iniciarCamera();
-              }, 1500);
-
+              }, 1000);
+        
             });
-
+        
         }
       );
 
